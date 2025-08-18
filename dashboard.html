@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Userbot Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <header class="bg-primary text-white p-3 mb-4">
+                    <h1 class="h3 mb-0">
+                        <i class="fab fa-telegram-plane me-2"></i>
+                        Telegram Userbot Dashboard
+                    </h1>
+                </header>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-robot me-2"></i>
+                            Статус Бота
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="status-indicator me-2" id="statusIndicator"></span>
+                            <span id="statusText">Завантаження...</span>
+                        </div>
+                        <div class="uptime-container">
+                            <small class="text-muted">Час роботи:</small>
+                            <div id="uptime">--:--:--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cogs me-2"></i>
+                            Команди
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="command-list">
+                            <div class="command-item">
+                                <code>/gayporn</code> або <code>/random</code>
+                                <small class="text-muted d-block">Випадкове повідомлення з каналу</small>
+                            </div>
+                            <div class="command-item">
+                                <code>/voice</code>
+                                <small class="text-muted d-block">Конвертація голосу в текст</small>
+                            </div>
+                            <div class="command-item">
+                                <code>/status</code>
+                                <small class="text-muted d-block">Показати статус бота</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="stat-card card text-center mb-4">
+                            <div class="card-body">
+                                <i class="fas fa-terminal stat-icon text-info"></i>
+                                <h3 id="commandsCount">0</h3>
+                                <p class="text-muted">Команд оброблено</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card card text-center mb-4">
+                            <div class="card-body">
+                                <i class="fas fa-heart stat-icon text-danger"></i>
+                                <h3 id="reactionsCount">0</h3>
+                                <p class="text-muted">Реакцій надіслано</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="stat-card card text-center mb-4">
+                            <div class="card-body">
+                                <i class="fas fa-comments stat-icon text-success"></i>
+                                <h3 id="messagesCount">0</h3>
+                                <p class="text-muted">Повідомлень оброблено</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-magic me-2"></i>
+                            Автоматичні функції
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="auto-function">
+                                    <i class="fas fa-heart text-danger me-2"></i>
+                                    <strong>Реакції ❤️‍🔥</strong>
+                                    <small class="text-muted d-block">
+                                        На ключові слова: кріхса, крихта, кочічка, м'якенька, роксіс, рокса, рокстар, ро, блейд, роксана
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="auto-function">
+                                    <i class="fas fa-flag text-warning me-2"></i>
+                                    <strong>Слава Україні</strong>
+                                    <small class="text-muted d-block">
+                                        Автоматична відповідь "Героям слава!"
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="auto-function">
+                                    <i class="fas fa-reply text-info me-2"></i>
+                                    <strong>Анти-пропаганда</strong>
+                                    <small class="text-muted d-block">
+                                        Відповідь на згадування "Путін"
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4" id="errorContainer" style="display: none;">
+            <div class="col-12">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Остання помилка:</strong>
+                    <span id="errorText"></span>
+                    <button type="button" class="btn-close" onclick="clearError()" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
