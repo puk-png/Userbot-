@@ -30,9 +30,9 @@ def register_handlers(client):
             status.commands_processed += 1
             print(f"Processing /random command from user {event.sender_id}")
             
-            # Отримуємо останні 100 повідомлень з каналу
+            # Отримуємо останні 100000 повідомлень з каналу
             messages = []
-            async for message in client.iter_messages(CHANNEL_ID, limit=100):
+            async for message in client.iter_messages(CHANNEL_ID, limit=100000):
                 if message.text or message.media:
                     messages.append(message)
             
