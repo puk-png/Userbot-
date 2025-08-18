@@ -54,86 +54,53 @@ def register_handlers(client):
             print(f"Error in random command: {e}")
             await event.reply(error_msg)
 
-    @client.on(events.NewMessage(pattern=r'/voice'))
-    async def voice_to_text(event):
-        """Розпізнає голосове повідомлення та конвертує в текст"""
-        if not event.is_reply:
-            await event.reply("❌ Використовуйте цю команду у відповіді на голосове повідомлення")
-            return
+     = [
+     @client.on(events.NewMessage(pattern=r'/voice'))
+async def voice_to_text(event):
+    """Розпізнає голосове повідомлення та конвертує в текст"""
+    if not event.is_reply:
+        await event.reply("❌ Використовуйте цю команду у відповіді на голосове повідомлення")
+        return
+
+    try:
+        reply_message = await event.get_reply_message()
         
-        try:
-            status.commands_processed += 1
-            print(f"Processing /voice command from user {event.sender_id}")
-            
-            reply_message = await event.get_reply_message()
-            
-            if not reply_message.voice:
-                await event.reply("❌ Це не голосове повідомлення")
+        if not reply_message.voice:
+            await event.reply("❌ Це не голосове повідомлення")
+            return
+
+        await event.reply("🎤 Обробляю голосове повідомлення...")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            voice_file = await reply_message.download_media(file=temp_dir)
+            wav_file = os.path.join(temp_dir, 'audio.wav')
+
+            # Конвертуємо OGG в WAV
+            try:
+                subprocess.run([
+                    'ffmpeg', '-i', voice_file, '-ar', '16000', wav_file, '-y'
+                ], check=True, capture_output=True)
+            except subprocess.CalledProcessError:
+                await event.reply("❌ Помилка конвертації аудіо. Переконайтесь, що ffmpeg встановлено.")
                 return
-            
-            await event.reply("🎤 Обробляю голосове повідомлення...")
-            
-            # Створюємо тимчасову директорію
-            with tempfile.TemporaryDirectory() as temp_dir:
-                # Завантажуємо голосове повідомлення
-                voice_file = await reply_message.download_media(file=temp_dir)
-                
-                # Конвертуємо OGG в WAV за допомогою ffmpeg
-                wav_file = os.path.join(temp_dir, 'audio.wav')
-                
-                try:
-                    # Використовуємо subprocess замість os.system для кращої безпеки
-                    subprocess.run([
-                        'ffmpeg', '-i', voice_file, '-ar', '16000', 
-                        wav_file, '-y'
-                    ], check=True, capture_output=True)
-                except subprocess.CalledProcessError as e:
-                    await event.reply("❌ Помилка конвертації аудіо. Переконайтесь, що ffmpeg встановлено.")
-                    return
-                except FileNotFoundError:
-                    await event.reply("❌ ffmpeg не знайдено. Встановіть ffmpeg для роботи з голосовими повідомленнями.")
-                    return
-                
-                # Розпізнаємо мову
-                recognizer = sr.Recognizer()
-                try:
-                    with sr.AudioFile(wav_file) as source:
-                        audio_data = recognizer.record(source)
-                except Exception as e:
-                    await event.reply(f"❌ Помилка читання аудіофайлу: {str(e)}")
-                    return
-                
-                # Спробуємо розпізнати мову в різних мовах
-                languages = [
-                    ('uk-UA', 'українська'),
-                    ('ru-RU', 'російська'),
-                    ('en-US', 'англійська')
-                ]
-                
-                recognized = False
-                for lang_code, lang_name in languages:
-                    try:
-                        # Використовуємо метод recognize_google з speech_recognition
-                        text = recognizer.recognize_google(audio_data, language=lang_code)
-                        await event.reply(f"📝 Розпізнаний текст ({lang_name}):\n\n{text}")
-                        recognized = True
-                        break
-                    except sr.UnknownValueError:
-                        continue
-                    except sr.RequestError as e:
-                        await event.reply(f"❌ Помилка сервісу розпізнавання: {e}")
-                        return
-                    except Exception as e:
-                        continue
-                
-                if not recognized:
-                    await event.reply("❌ Не вдалося розпізнати мову в голосовому повідомленні")
-                    
-        except Exception as e:
-            error_msg = f"❌ Помилка: {str(e)}"
-            status.last_error = error_msg
-            print(f"Error in voice command: {e}")
-            await event.reply(error_msg)
+            except FileNotFoundError:
+                await event.reply("❌ ffmpeg не знайдено. Встановіть ffmpeg для роботи з голосовими повідомленнями.")
+                return
+
+            # Розпізнаємо українську
+            recognizer = sr.Recognizer()
+            try:
+                with sr.AudioFile(wav_file) as source:
+                    audio_data = recognizer.record(source)
+                text = recognizer.recognize_google(audio_data, language="uk-UA")
+                await event.reply(f"📝 Розпізнаний текст (українська):\n\n{text}")
+            except sr.UnknownValueError:
+                await event.reply("❌ Не вдалося розпізнати мову в голосовому повідомленні")
+            except sr.RequestError as e:
+                await event.reply(f"❌ Помилка сервісу розпізнавання: {e}")
+
+    except Exception as e:
+        await event.reply(f"❌ Помилка: {str(e)}")
 
     @client.on(events.NewMessage)
     async def auto_reactions_and_responses(event):
